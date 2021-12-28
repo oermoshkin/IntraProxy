@@ -23,7 +23,7 @@ func (w *WSConn) ClientRead() {
 			return
 		}
 
-		log.Println("wss client read:", string(message))
+		//log.Println("wss client read:", string(message))
 
 		err = w.ServerWrite(mt, &message)
 		if err != nil {
@@ -35,7 +35,7 @@ func (w *WSConn) ClientRead() {
 }
 
 func (w *WSConn) ClientWrite(mt int, message *[]byte) error {
-	log.Println("wss client write:", string(*message))
+	//log.Println("wss client write:", string(*message))
 
 	err := w.ClientConn.WriteMessage(mt, *message)
 	if err != nil {
@@ -52,7 +52,7 @@ func (w *WSConn) ServerRead() {
 			log.Println("Error read wss from server:", err)
 			return
 		}
-		log.Println("wss server read:", string(message))
+		//log.Println("wss server read:", string(message))
 
 		err = w.ClientWrite(mt, &message)
 		if err != nil {
@@ -64,7 +64,7 @@ func (w *WSConn) ServerRead() {
 }
 
 func (w *WSConn) ServerWrite(mt int, message *[]byte) error {
-	log.Println("wss server write:", string(*message))
+	//log.Println("wss server write:", string(*message))
 	err := w.ServerConn.WriteMessage(mt, *message)
 	if err != nil {
 		return err
@@ -78,8 +78,6 @@ func (w *WSConn) Destroy() {
 }
 
 func NewWS(w http.ResponseWriter, r *http.Request) {
-	log.Println("New WSS")
-
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	ClientConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
