@@ -50,7 +50,6 @@ func MyServer() {
 //MyHandler Обработчик запросов. Вся магия тут
 func MyHandler(w http.ResponseWriter, r *http.Request) {
 	var Host string
-	log.Println(r.Host)
 
 	//Меняем Host для запроса на сервера IntraDesk
 	switch r.Host {
@@ -58,12 +57,13 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 		Host = Config.Origin.Server
 	case Config.Proxy.Login:
 		Host = Config.Origin.Login
+	case Config.Proxy.ApiGW:
+		Host = Config.Origin.ApiGW
+	case Config.Proxy.Doc:
+		Host = Config.Origin.Doc
 	}
 
 	Header := r.Header
-	//Header.Set("Host", FQDNService)
-	//Header.Set("authority", FQDNService)
-	//Header.Set("referer", strings.Join([]string{"https://", FQDNService, "/"}, ""))
 
 	//Мне лень было распаковывать gzip, поэтому я просто удаляю этот заголовок.
 	Header.Del("Accept-Encoding")
@@ -101,9 +101,6 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			//Произошел редирект. Меняем Location для пользователя.
 			tmp := strings.Replace(resp.Header.Get("Location"), Config.Origin.Server, Config.Proxy.Server, -1)
-			//if strings.Contains(resp.Header.Get("Location"), Config.Proxy.Server) {
-			//	NewLoc = "https://" + FQDNProxy
-			//}
 			NewLoc = strings.Replace(tmp, Config.Origin.Login, Config.Proxy.Login, -1)
 			//log.Println("New Location:", NewLoc)
 		}
@@ -130,11 +127,12 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 	//Если ответ это JSON. То в нем нам нужно изменить оригинальные URL на прокси URL
 	if (strings.ToLower(resp.Header.Get("content-type")) == "application/json; charset=utf-8") ||
 		(strings.ToLower(resp.Header.Get("content-type")) == "application/jwk-set+json; charset=utf-8") {
-		s := string(respByte)
-		myLogin := strings.Join([]string{"https://", Config.Proxy.Login}, "")
-		origLogin := strings.Join([]string{"https://", Config.Origin.Login}, "")
-		newS := strings.Replace(s, origLogin, myLogin, -1)
-		data = []byte(newS)
+		respString := string(respByte)
+		replacer := strings.NewReplacer(Config.Origin.Login, Config.Proxy.Login,
+			Config.Origin.ApiGW, Config.Proxy.ApiGW,
+			Config.Origin.Doc, Config.Proxy.Doc)
+		newResp := replacer.Replace(respString)
+		data = []byte(newResp)
 	} else {
 		data = respByte
 	}

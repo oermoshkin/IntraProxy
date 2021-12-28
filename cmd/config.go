@@ -14,11 +14,15 @@ type ConfigStruct struct {
 	Proxy struct {
 		Server string `yaml:"server"`
 		Login  string `yaml:"login"`
+		ApiGW  string `yaml:"apigw"`
+		Doc    string `yaml:"doc"`
 	} `yaml:"proxy"`
 
 	Origin struct {
 		Server string `yaml:"server"`
 		Login  string `yaml:"login"`
+		ApiGW  string `yaml:"apigw"`
+		Doc    string `yaml:"doc"`
 	} `yaml:"origin"`
 }
 

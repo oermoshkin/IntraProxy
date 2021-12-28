@@ -7,10 +7,14 @@ server:
 origin:
   server: "iitdgroup.intradesk.ru"
   login:  "login.intradesk.ru"
+  apigw:  "apigw.intradesk.ru"
+  doc:    "documentserver.intradesk.ru"
 
 # Домены заказчика
 proxy:
   server: "rm-rf.local"
   login:  "login.rm-rf.local"
+  apigw:  "apigw.rm-rf.local"
+  doc:    "documentserver.rm-rf.local"
 
 # Замена происходит 1 в 1 -> domain.server -> proxy.server и наоборот.
