@@ -44,12 +44,17 @@ func MyServer() {
 	handler.HandleFunc(allReq, MyHandler)
 	ServerIP := strings.Join([]string{Config.Server.Host, Config.Server.Port}, ":")
 	log.Println("Started server", ServerIP)
-	log.Fatal(http.ListenAndServeTLS(ServerIP, "./ssl/server.crt", "./ssl/server.key", handler))
+	log.Fatal(http.ListenAndServeTLS(ServerIP, Config.Server.Cert, Config.Server.PrivKey, handler))
 }
 
 //MyHandler Обработчик запросов. Вся магия тут
 func MyHandler(w http.ResponseWriter, r *http.Request) {
 	var Host string
+
+	if r.Header.Get("Upgrade") == "websocket" {
+		NewWS(w, r)
+		return
+	}
 
 	//Меняем Host для запроса на сервера IntraDesk
 	switch r.Host {
@@ -63,6 +68,14 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 		Host = Config.Origin.Doc
 	}
 
+	var RemoteIP string
+
+	if r.Header.Get("X-Real-IP") != "" {
+		RemoteIP = r.Header.Get("X-Real-IP")
+	} else {
+		RemoteIP = r.RemoteAddr
+	}
+
 	Header := r.Header
 
 	//Мне лень было распаковывать gzip, поэтому я просто удаляю этот заголовок.
@@ -72,7 +85,7 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 	var url string
 
 	if r.URL.RawQuery != "" {
-		//Меняем прокси host на оригинальный.
+		//Меняем прокси host на оригинальный в параметрах запроса
 		//https://login.intradesk.ru/connect/authorize?response_type=id_token%20token&client_id=web&state=S6HMWWx0gs6wDK29tqwW3wtERClhBXDrqsaVG-HGg9XgP&redirect_uri=https%3A%2F%2Fsupport.itdexpert.ru%2Fsilent-refresh.html&scope=openid%20profile%20email%20api%20custom.profile&nonce=S6HMWWx0gs6wDK29tqwW3wtERClhBXDrqsaVG-HGg9XgP&prompt=none&acr_values=tenant%3Asupport.itdexpert.ru
 		query := strings.Replace(r.URL.RawQuery, Config.Proxy.Server, Config.Origin.Server, -1)
 		url = strings.Join([]string{"https://", Host, r.URL.Path, "?", query}, "")
@@ -100,8 +113,9 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 			//Произошел редирект. Меняем Location для пользователя.
-			tmp := strings.Replace(resp.Header.Get("Location"), Config.Origin.Server, Config.Proxy.Server, -1)
-			NewLoc = strings.Replace(tmp, Config.Origin.Login, Config.Proxy.Login, -1)
+			replacer := strings.NewReplacer(Config.Origin.Server, Config.Proxy.Server,
+				Config.Origin.Login, Config.Proxy.Login)
+			NewLoc = replacer.Replace(resp.Header.Get("Location"))
 			//log.Println("New Location:", NewLoc)
 		}
 	}
@@ -149,5 +163,5 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	log.Printf("%s: %s %s %s%s %d", r.RemoteAddr, r.Proto, r.Method, r.Host, r.URL.Path, resp.StatusCode)
+	log.Printf("%s: %s %s %s%s %d", RemoteIP, r.Proto, r.Method, r.Host, r.URL.Path, resp.StatusCode)
 }

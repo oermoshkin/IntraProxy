@@ -2,6 +2,8 @@
 server:
   host: 0.0.0.0
   port: 443
+  cert:    "./ssl/server.crt"
+  privkey: "./ssl/server.key"
 
 # Домены которые нужно будет заменить(домены ведора)
 origin:

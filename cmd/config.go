@@ -7,8 +7,10 @@ import (
 
 type ConfigStruct struct {
 	Server struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
+		Host    string `yaml:"host"`
+		Port    string `yaml:"port"`
+		Cert    string `yaml:"cert"`
+		PrivKey string `yaml:"privkey"`
 	} `yaml:"server"`
 
 	Proxy struct {
