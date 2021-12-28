@@ -3,13 +3,14 @@ server:
   host: 0.0.0.0
   port: 443
 
-# Домены которые нужно будет заменить
+# Домены которые нужно будет заменить(домены ведора)
 origin:
   server: "iitdgroup.intradesk.ru"
   login:  "login.intradesk.ru"
+
 # Домены заказчика
 proxy:
   server: "rm-rf.local"
   login:  "login.rm-rf.local"
 
-# Замена происходит 1 в 1 -> domain.server -> proxy.server
+# Замена происходит 1 в 1 -> domain.server -> proxy.server и наоборот.
