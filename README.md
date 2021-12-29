@@ -52,7 +52,7 @@ certbot certonly --standalone -d customer.domain -d login.customer.domain -d api
 ### Docker
 Для запуска системы из контейнера, вы можете использовать команду:
 
-```make docker```
+```make dockers```
 
 Система запустит докер с go, в котором собирется бинарный файл и подготовит докер для запуска.
 
