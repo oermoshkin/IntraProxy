@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -88,7 +89,6 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.RawQuery != "" {
 		//Меняем прокси host на оригинальный в параметрах запроса
-		//https://login.intradesk.ru/connect/authorize?response_type=id_token%20token&client_id=web&state=S6HMWWx0gs6wDK29tqwW3wtERClhBXDrqsaVG-HGg9XgP&redirect_uri=https%3A%2F%2Fsupport.itdexpert.ru%2Fsilent-refresh.html&scope=openid%20profile%20email%20api%20custom.profile&nonce=S6HMWWx0gs6wDK29tqwW3wtERClhBXDrqsaVG-HGg9XgP&prompt=none&acr_values=tenant%3Asupport.itdexpert.ru
 		query := strings.Replace(r.URL.RawQuery, Config.Proxy.Server, Config.Origin.Server, -1)
 		url = strings.Join([]string{"https://", Host, r.URL.Path, "?", query}, "")
 	} else {
@@ -97,7 +97,7 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 
 	client := &http.Client{}
 	req, _ := http.NewRequest(r.Method, url, r.Body)
-	//log.Printf("Debug: %s %s", r.Method, url)
+
 	req.Header = Header.Clone()
 	redirect := false
 
@@ -118,7 +118,6 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 			replacer := strings.NewReplacer(Config.Origin.Server, Config.Proxy.Server,
 				Config.Origin.Login, Config.Proxy.Login)
 			NewLoc = replacer.Replace(resp.Header.Get("Location"))
-			//log.Println("New Location:", NewLoc)
 		}
 	}
 
@@ -152,8 +151,12 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		data = respByte
 	}
-	//log.Println("Response code:", resp.StatusCode)
-	//log.Printf("Response Origin Header: %+v \t\n", resp.Header)
+
+	//Меняем в js параметр this.skipIssuerCheck на True
+	matched, _ := regexp.MatchString(`vendor-.*\.js$`, r.URL.Path)
+	if matched {
+		data = bytes.Replace(data, []byte("this.skipIssuerCheck=!1"), []byte("this.skipIssuerCheck=1"), 1)
+	}
 
 	w.WriteHeader(resp.StatusCode)
 	if len(data) != 0 {
