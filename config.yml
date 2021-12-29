@@ -1,22 +1,22 @@
 # Основные настройки
 server:
-  host: 0.0.0.0
-  port: 443
+  host:    0.0.0.0
+  port:    443
   cert:    "./ssl/server.crt"
   privkey: "./ssl/server.key"
 
 # Домены которые нужно будет заменить(домены ведора)
 origin:
-  server: "iitdgroup.intradesk.ru"
+  server: "customer.intradesk.ru"
   login:  "login.intradesk.ru"
   apigw:  "apigw.intradesk.ru"
   doc:    "documentserver.intradesk.ru"
 
 # Домены заказчика
 proxy:
-  server: "rm-rf.local"
-  login:  "login.rm-rf.local"
-  apigw:  "apigw.rm-rf.local"
-  doc:    "documentserver.rm-rf.local"
+  server: "customer.domain"
+  login:  "login.customer.domain"
+  apigw:  "apigw.customer.domain"
+  doc:    "documentserver.customer.domain"
 
 # Замена происходит 1 в 1 -> domain.server -> proxy.server и наоборот.

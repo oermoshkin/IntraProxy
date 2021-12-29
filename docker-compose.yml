@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  IntraProxy:
+    container_name: intraproxy
+    image: oermoshkin/intraproxy:latest
+    volumes:
+      - ./ssl:/srv/IntraProxy/ssl
+      - ./config.yml:/srv/IntraProxy/config.yml
+    ports:
+      - "443:443"
+    restart: on-failure
