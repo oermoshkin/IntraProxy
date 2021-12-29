@@ -21,15 +21,16 @@ Debian/Ubuntu
 Centos/RH
 ```yum install certbot```
 
-* Убедитесь что на 80 и 443 порту у вас ничего не запущено.
-* FQDN указанные в config.yml ссылаются на ваш сервер.
+Убедитесь что:
+* На 80 и 443 порту у вас ничего не запущено;
+* FQDN указанные в config.yml ссылаются на ваш сервер;
 
 Для выпуска сертификата запустите команду ниже, предварительно изменим доменные имена на свои:
 ```
 certbot certonly --standalone -d customer.domain -d login.customer.domain -d apigw.customer.domain -d documentserver.customer.domain
 ```
 
-В случае успеха, измените в config.yml пусть до созданного сертификата
+В случае успеха, измените в config.yml путь до созданного сертификата
 
 ```
   cert:    "/etc/letsencrypt/live/customer.domain/fullchain.pem"
@@ -79,4 +80,5 @@ docker-compose up
 ```
 
 Для запуска в фоне, добавить флаг **-d**
-Для просмотра логов в этом случае используем ```docker-compose logs -f```
+
+Для просмотра логов в этом случае используем: ```docker-compose logs -f```
