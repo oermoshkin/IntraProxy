@@ -66,6 +66,8 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 		Host = Config.Origin.ApiGW
 	case Config.Proxy.Doc:
 		Host = Config.Origin.Doc
+	default:
+		return
 	}
 
 	var RemoteIP string
@@ -154,7 +156,7 @@ func MyHandler(w http.ResponseWriter, r *http.Request) {
 	//log.Printf("Response Origin Header: %+v \t\n", resp.Header)
 
 	w.WriteHeader(resp.StatusCode)
-	if resp.StatusCode == 200 {
+	if len(data) != 0 {
 		_, err = w.Write(data)
 		if err != nil {
 			log.Println("Error send data:", err)
