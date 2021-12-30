@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  haproxy:
+    image: haproxy
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    links:
+      - IntraProxyOne
+      - IntraProxyTwo
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: on-failure
+
+  IntraProxyOne:
+    container_name: intraproxy-one
+    image: oermoshkin/intraproxy:latest
+    volumes:
+      - ./config-one.yml:/srv/IntraProxy/config.yml
+      - ./ssl:/srv/IntraProxy/ssl
+    restart: on-failure
+
+  IntraProxyTwo:
+    container_name: intraproxy-two
+    image: oermoshkin/intraproxy:latest
+    volumes:
+      - ./config-two.yml:/srv/IntraProxy/config.yml
+      - ./ssl:/srv/IntraProxy/ssl
+    restart: on-failure
